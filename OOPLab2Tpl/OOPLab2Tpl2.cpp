@@ -1,63 +1,27 @@
 #include <iostream>
 #include <string>
+#include <bitset>
 
-using namespace std;
+std::string encryptChar(char c, int row, int position) {
+    int ascii_code = static_cast<int>(c);
+    int parity_bit = std::bitset<8>(ascii_code).count() % 2;
+    int first_byte = (row << 6) | (position << 1) | (parity_bit >> 0);
+    int second_byte = (parity_bit << 7) | ascii_code;
 
-const int MAX_LENGTH = 32;
-
-string addSpaces(const string& input) {
-    if (input.length() < MAX_LENGTH) {
-        return input + string(MAX_LENGTH - input.length(), ' ');
-    }
-    return input.substr(0, MAX_LENGTH);
-}
-
-string encrypt(const string& input, int row) {
-    string encryptedText = "";
-    
-    for (int i = 0; i < input.length(); ++i) {
-        char currentChar = input[i];
-        
-        // Calculate parity bit
-        int parityBit = 0;
-        for (int j = 0; j < 7; ++j) {
-            parityBit ^= ((currentChar >> j) & 1);
-        }
-        
-        // Construct two-byte representation
-        char firstByte = static_cast<char>((row << 6) | (i << 1) | (parityBit << 7));
-        char secondByte = currentChar;
-        
-        encryptedText += firstByte;
-        encryptedText += secondByte;
-    }
-    
-    return encryptedText;
+    return std::bitset<8>(first_byte).to_string() + " " + std::bitset<8>(second_byte).to_string();
 }
 
 int main() {
-    // Задані 4 рядки тексту
-    string text[4];
-    
-    // Введення рядків тексту
-    cout << "Enter text (up to 32 characters each):" << endl;
+    std::string lines[] = {"Hel", "lo", "wor", "ld"};
+
     for (int i = 0; i < 4; ++i) {
-        cout << "Row " << i + 1 << ": ";
-        getline(cin, text[i]);
-        text[i] = addSpaces(text[i]);
-    }
-    
-    // Шифрування та вивід результату
-    for (int i = 0; i < 4; ++i) {
-        string encryptedRow = encrypt(text[i], i);
-        
-        cout << "Encrypted Row " << i + 1 << ": ";
-        for (int j = 0; j < encryptedRow.length(); ++j) {
-            cout << bitset<8>(encryptedRow[j]) << " ";
+        std::string line = lines[i];
+        for (int j = 0; j < line.length(); ++j) {
+            std::cout << encryptChar(line[j], i, j) << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
-    
+
     system("pause");
     return 0;
 }
